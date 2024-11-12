@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import React from "react";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -7,7 +8,6 @@ const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-poppins",
 });
-})
 
 export const metadata: Metadata = {
   title: "StoreIt",
@@ -22,7 +22,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        /* eslint-disable-next-line tailwindcss/no-custom-classname */
+        className={`${poppins.variable} font-poppins antialiased`}
       >
         {children}
       </body>
