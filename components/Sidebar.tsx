@@ -7,8 +7,9 @@ import { navItems } from "@/constants";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { FaUser } from "react-icons/fa";
+import { SidebarProps } from "@/types";
 
-const Sidebar = ({ fullName, email }: { fullName: string; email: string }) => {
+const Sidebar = ({ fullName, email }: SidebarProps) => {
 	const pathName = usePathname();
 
 	return (
