@@ -11,12 +11,14 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { z } from "zod";
+import { createAccount } from "@/lib/actions/user.actions";
+import OTPModal from "@/components/OTPModal";
 
 interface AuthFormProps {
 	type: "sign-in" | "sign-up";
@@ -25,6 +27,7 @@ interface AuthFormProps {
 const AuthForm = ({ type }: AuthFormProps) => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
+	const [accountId, setAccountId] = useState("");
 
 	const formSchema = authSchema(type);
 
@@ -36,8 +39,22 @@ const AuthForm = ({ type }: AuthFormProps) => {
 		},
 	});
 
-	const onSubmit = (values: z.infer<typeof formSchema>) => {
-		console.log(values);
+	const onSubmit = async (values: z.infer<typeof formSchema>) => {
+		setIsLoading(true);
+		setErrorMessage("");
+
+		try {
+			const user = await createAccount({
+				fullName: values.fullname || "",
+				email: values.email,
+			});
+			setAccountId(user.accountId);
+		} catch (error) {
+			console.error(error);
+			setErrorMessage("Failed to create an account. Please try again.");
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
@@ -93,8 +110,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
 						className="form-submit-button"
 						disabled={isLoading}
 					>
-						{type === "sign-in" ? "Sign In" : "Sign Up"}
-						{isLoading && (
+						{isLoading ? (
 							<Image
 								src={"/assets/icons/loader.svg"}
 								alt="loader"
@@ -102,6 +118,10 @@ const AuthForm = ({ type }: AuthFormProps) => {
 								width={24}
 								className="ml-2 animate-spin"
 							/>
+						) : type === "sign-in" ? (
+							"Sign In"
+						) : (
+							"Sign Up"
 						)}
 					</Button>
 
@@ -120,6 +140,9 @@ const AuthForm = ({ type }: AuthFormProps) => {
 							{type === "sign-in" ? "Sign up" : "Sign in"}
 						</Link>
 					</div>
+					{accountId && (
+						<OTPModal email={form.getValues("email")} accountId={accountId} />
+					)}
 				</form>
 			</Form>
 		</>
