@@ -5,8 +5,8 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
-export const parseStringify = <T = unknown>(value: T) =>
-	JSON.parse(JSON.stringify(value)) as T;
+export const parseStringify = (value: unknown) =>
+	JSON.parse(JSON.stringify(value));
 
 export const convertFileToUrl = (file: File) => URL.createObjectURL(file);
 

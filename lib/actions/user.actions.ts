@@ -1,6 +1,6 @@
 "use server";
 
-import { createAdminClient } from "@/lib/appwrite";
+import { createAdminClient, createSessionClient } from "@/lib/appwrite";
 import { appwriteConfig } from "@/lib/appwrite/config";
 import { ID, Query } from "node-appwrite";
 import { parseStringify } from "@/lib/utils";
@@ -35,7 +35,7 @@ export const sendEmailOTP = async (email: string) => {
 	}
 };
 
-export const createAccount = async ({
+export const signUp = async ({
 	fullName,
 	email,
 }: {
@@ -43,25 +43,34 @@ export const createAccount = async ({
 	email: string;
 }) => {
 	const existingUser = await getUserByEmail(email);
+	if (existingUser) throw new Error("Email is already in use!");
 
 	const accountId = await sendEmailOTP(email);
-	if (!accountId) throw new Error("Failed to send an OTP");
+	if (!accountId) throw new Error("Failed to send an OTP!");
 
-	if (!existingUser) {
-		const { databases } = await createAdminClient();
+	const { databases } = await createAdminClient();
 
-		await databases.createDocument(
-			appwriteConfig.databaseId,
-			appwriteConfig.usersCollectionId,
-			ID.unique(),
-			{
-				fullName,
-				email,
-				avatar: "",
-				accountId,
-			}
-		);
-	}
+	await databases.createDocument(
+		appwriteConfig.databaseId,
+		appwriteConfig.usersCollectionId,
+		ID.unique(),
+		{
+			fullName,
+			email,
+			avatar: "", // TODO: Add avatar feature
+			accountId,
+		}
+	);
+
+	return parseStringify({ accountId });
+};
+
+export const signIn = async (email: string) => {
+	const existingUser = await getUserByEmail(email);
+	if (!existingUser) throw new Error("User not found!");
+
+	const accountId = await sendEmailOTP(email);
+	if (!accountId) throw new Error("Failed to send an OTP!");
 
 	return parseStringify({ accountId });
 };
@@ -88,5 +97,25 @@ export const verifyOTP = async ({
 		return parseStringify({ sessionId: session.$id });
 	} catch (error) {
 		handleError(error, "Error verifying OTP");
+	}
+};
+
+export const getCurrentUser = async () => {
+	try {
+		const { databases, account } = await createSessionClient();
+
+		const result = await account.get();
+
+		const user = await databases.listDocuments(
+			appwriteConfig.databaseId,
+			appwriteConfig.usersCollectionId,
+			[Query.equal("accountId", result.$id)]
+		);
+
+		if (user.total <= 0) return null;
+
+		return parseStringify(user.documents[0]);
+	} catch (error) {
+		handleError(error, "Error getting current user");
 	}
 };

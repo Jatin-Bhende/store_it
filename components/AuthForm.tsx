@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { z } from "zod";
-import { createAccount } from "@/lib/actions/user.actions";
+import { signIn, signUp } from "@/lib/actions/user.actions";
 import OTPModal from "@/components/OTPModal";
 
 interface AuthFormProps {
@@ -35,7 +35,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			email: "",
-			fullname: "",
+			fullName: "",
 		},
 	});
 
@@ -44,14 +44,22 @@ const AuthForm = ({ type }: AuthFormProps) => {
 		setErrorMessage("");
 
 		try {
-			const user = await createAccount({
-				fullName: values.fullname || "",
-				email: values.email,
-			});
-			setAccountId(user.accountId);
-		} catch (error) {
-			console.error(error);
-			setErrorMessage("Failed to create an account. Please try again.");
+			if (type === "sign-in") {
+				const user = await signIn(values.email);
+				setAccountId(user.accountId);
+			} else {
+				const user = await signUp({
+					fullName: values.fullName || "",
+					email: values.email,
+				});
+				setAccountId(user.accountId);
+			}
+		} catch (error: unknown) {
+			if (error instanceof Error) {
+				setErrorMessage(error.message);
+			} else {
+				setErrorMessage("Something went wrong");
+			}
 		} finally {
 			setIsLoading(false);
 		}
@@ -67,7 +75,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
 					{type === "sign-up" && (
 						<FormField
 							control={form.control}
-							name="fullname"
+							name="fullName"
 							render={({ field }) => (
 								<FormItem>
 									<div className="shad-form-item">
