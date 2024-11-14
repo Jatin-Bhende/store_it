@@ -190,6 +190,7 @@ export const constructDownloadUrl = (bucketFileId: string) => {
 };
 
 // DASHBOARD UTILS
+// TODO: Get rid of this any with proper type
 export const getUsageSummary = (totalSpace: any) => {
 	return [
 		{
