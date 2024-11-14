@@ -5,6 +5,7 @@ import { appwriteConfig } from "@/lib/appwrite/config";
 import { ID, Query } from "node-appwrite";
 import { parseStringify } from "@/lib/utils";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const handleError = (error: unknown, message: string) => {
 	console.error(error, message);
@@ -117,5 +118,17 @@ export const getCurrentUser = async () => {
 		return parseStringify(user.documents[0]);
 	} catch (error) {
 		handleError(error, "Error getting current user");
+	}
+};
+
+export const signOut = async () => {
+	const { account } = await createSessionClient();
+	try {
+		await account.deleteSession("current");
+		(await cookies()).delete("appwrite-session");
+	} catch (error) {
+		handleError(error, "Error signing out");
+	} finally {
+		redirect("/sign-in");
 	}
 };

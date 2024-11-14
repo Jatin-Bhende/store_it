@@ -5,6 +5,55 @@ import { Models } from "node-appwrite";
 
 declare type FileType = "document" | "image" | "video" | "audio" | "other";
 
+declare type Extension =
+	// Document
+	| "pdf"
+	| "doc"
+	| "docx"
+	| "txt"
+	| "xls"
+	| "xlsx"
+	| "csv"
+	| "rtf"
+	| "ods"
+	| "ppt"
+	| "odp"
+	| "md"
+	| "html"
+	| "htm"
+	| "epub"
+	| "pages"
+	| "fig"
+	| "psd"
+	| "ai"
+	| "indd"
+	| "xd"
+	| "sketch"
+	| "afdesign"
+	| "afphoto"
+	| "afphoto"
+	// Image
+	| "jpg"
+	| "jpeg"
+	| "png"
+	| "gif"
+	| "bmp"
+	| "svg"
+	| "webp"
+	// Video
+	| "mp4"
+	| "avi"
+	| "mov"
+	| "mkv"
+	| "webm"
+	// Audio
+	| "mp3"
+	| "wav"
+	| "ogg"
+	| "flac"
+	// Other
+	| (string & {});
+
 declare interface ActionType {
 	label: string;
 	icon: string;
@@ -31,7 +80,7 @@ declare interface GetFilesProps {
 declare interface RenameFileProps {
 	fileId: string;
 	name: string;
-	extension: string;
+	extension: Extension;
 	path: string;
 }
 declare interface UpdateFileUsersProps {
@@ -52,7 +101,7 @@ declare interface FileUploaderProps {
 }
 
 declare interface MobileNavigationProps {
-	ownerId: string;
+	$id: string;
 	accountId: string;
 	fullName: string;
 	avatar: string;
@@ -66,7 +115,7 @@ declare interface SidebarProps {
 
 declare interface ThumbnailProps {
 	type: string;
-	extension: string;
+	extension: Extension;
 	url: string;
 	className?: string;
 	imageClassName?: string;
