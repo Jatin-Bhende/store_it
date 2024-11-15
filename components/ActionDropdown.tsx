@@ -22,10 +22,11 @@ import { actionsDropdownItems } from "@/constants";
 import { ActionType } from "@/types";
 import Link from "next/link";
 import { constructDownloadUrl } from "@/lib/utils";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { renameFile } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
+import { FileDetails } from "@/components/ActionsModalContent";
 
 const ActionDropdown = ({ file }: { file: Models.Document }) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,7 +71,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
 		return (
 			<DialogContent className="shad-dialog button">
 				<DialogHeader className="flex flex-col gap-3">
-					<DialogTitle className="text-center text-light-200">
+					<DialogTitle className="text-center text-light-100">
 						{label}
 					</DialogTitle>
 					{value === "rename" && (
@@ -80,6 +81,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
 							onChange={(e) => setName(e.target.value)}
 						/>
 					)}
+					{value === "details" && <FileDetails file={file} />}
 				</DialogHeader>
 				{["rename", "share", "delete"].includes(value) && (
 					<DialogFooter className="flex flex-col gap-3 md:flex-row">
