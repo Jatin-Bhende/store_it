@@ -61,7 +61,7 @@ declare interface ActionType {
 }
 
 declare interface SearchParamProps {
-	params?: Promise<SegmentParams>;
+	params?: Promise<{ type: string }>;
 	searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
@@ -123,6 +123,6 @@ declare interface ThumbnailProps {
 
 declare interface ShareInputProps {
 	file: Models.Document;
-	onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	onInputChange: React.Dispatch<React.SetStateAction<string[]>>;
 	onRemove: (email: string) => void;
 }
