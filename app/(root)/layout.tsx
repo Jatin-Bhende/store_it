@@ -6,6 +6,9 @@ import { getCurrentUser } from "@/lib/actions/user.actions";
 import { redirect } from "next/navigation";
 import React from "react";
 
+// This is important for this page to use the Server-Side Rendering (SSR) feature
+export const dynamic = "force-dynamic";
+
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 	const currentUser = await getCurrentUser();
 	if (!currentUser) return redirect("/sign-in");
