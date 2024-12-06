@@ -44,7 +44,6 @@ const createQueries = (
 		orderBy === "desc" ? Query.orderDesc(sortBy) : Query.orderAsc(sortBy)
 	);
 
-	// TODO: Modify query based on search, sort and limit
 	return queries;
 };
 
