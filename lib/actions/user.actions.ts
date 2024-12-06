@@ -86,6 +86,9 @@ export const verifyOTP = async ({
 	try {
 		const { account } = await createAdminClient();
 
+		if (otp.length !== 6) {
+			throw new Error("Invalid OTP!");
+		}
 		const session = await account.createSession(accountId, otp);
 
 		(await cookies()).set("appwrite-session", session.secret, {

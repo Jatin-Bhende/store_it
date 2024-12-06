@@ -14,7 +14,7 @@ import {
 	InputOTPGroup,
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Button } from "./ui/button";
@@ -30,37 +30,61 @@ const OTPModal = ({
 }) => {
 	const [isOpen, setIsOpen] = useState(true);
 	const [otp, setOTP] = useState("");
+	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
 	const router = useRouter();
 
-	const handleSubmit = async (ev: React.MouseEvent<HTMLButtonElement>) => {
-		ev.preventDefault();
-		setIsLoading(true);
+	const handleSubmit = useCallback(
+		async (ev?: React.SyntheticEvent) => {
+			if (ev) ev.preventDefault();
+			setIsLoading(true);
 
-		try {
-			const sessionId = await verifyOTP({
-				accountId,
-				otp,
-			});
+			try {
+				const sessionId = await verifyOTP({
+					accountId,
+					otp,
+				});
 
-			if (sessionId) router.push("/");
-		} catch (error) {
-			console.error(error);
-		} finally {
-			setIsLoading(false);
-		}
-	};
+				if (sessionId) router.push("/");
+			} catch (error: unknown) {
+				if (error instanceof Error) {
+					setError(error.message);
+				} else {
+					setError("Something went wrong!");
+				}
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[otp, accountId, router]
+	);
 
 	const handleResendOTP = async () => {
 		await sendEmailOTP(email);
 	};
+
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "Enter") {
+				handleSubmit();
+			}
+		};
+
+		if (isOpen) {
+			window.addEventListener("keydown", handleKeyDown);
+		}
+
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [isOpen, handleSubmit]);
 	return (
 		<AlertDialog open={isOpen} onOpenChange={setIsOpen}>
 			<AlertDialogContent className="shad-alert-dialog">
 				<AlertDialogHeader className="relative flex justify-center">
 					<AlertDialogTitle className="h2 text-center">
-						Enter your OTP{" "}
+						Enter your OTP
 						<Image
 							src="/assets/icons/close-dark.svg"
 							alt="close"
@@ -90,10 +114,16 @@ const OTPModal = ({
 						<InputOTPSlot index={5} className="shad-otp-slot" />
 					</InputOTPGroup>
 				</InputOTP>
+				{error && (
+					<AlertDialogDescription className="text-center text-rose-600">
+						{error}
+					</AlertDialogDescription>
+				)}
 				<AlertDialogFooter>
 					<div className="flex w-full flex-col gap-4">
 						<AlertDialogAction
 							onClick={handleSubmit}
+							onKeyDown={handleSubmit}
 							className="shad-submit-btn h-12"
 							type="button"
 						>
